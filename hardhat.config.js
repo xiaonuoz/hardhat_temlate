@@ -34,7 +34,7 @@ module.exports = {
   },
   // namedAccounts 配合插件 hardhat-deploy 使用，用来给账户地址设置别名，部署或测试脚本中可以直接通过 getNamedAccounts() 使用
   namedAccounts: {
-    deployer: {
+    firstAccount: {
       default: 0, // default指的是默认的网络，0表示第一个账户
       sepolia: 0, // Sepolia网络的第一个账户
     },
