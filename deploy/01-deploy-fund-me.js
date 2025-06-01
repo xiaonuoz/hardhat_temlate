@@ -30,4 +30,4 @@ module.exports = async ({getNamedAccounts,deployments,network})=> {
     });
 }
 
-module.exports.tags = ["fund_me"]; // 为部署脚本添加标签，方便在运行时指定特定的部署脚本
+module.exports.tags = ["all", "fund_me"]; // 为部署脚本添加标签，方便在运行时指定特定的部署脚本，为多个脚本添加相同的标签可以一起部署
