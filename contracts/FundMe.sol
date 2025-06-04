@@ -29,10 +29,17 @@ contract FundMe {
     bool public getFundSuccess;
 
     address public owner;
+
+    // 定义一个 event事件，作用是 在区块链日志中记录一条信息，供前端或离线程序监听和读取
+    event getFundEvent(
+        address indexed funder,
+        uint256 amount
+    );
+
     // 构造函数：在合约部署的时候进行一次调用，并且以后再也不会调用
-    constructor(uint256 _lockTime) {
+    constructor(uint256 _lockTime, address _dataFeed) {
         dataFeed = AggregatorV3Interface(
-            0x694AA1769357215DE4FAC081bf1f309aDC325306
+            _dataFeed
         );
         owner=msg.sender;
 
@@ -119,9 +126,14 @@ contract FundMe {
         // value是要转账的数量，而括号则是要调用的函数
         // 需要注意 当转账成功，但函数调用失败时success会返回false，但是转账已经成功了，如果不对success处理就会导致逻辑出错
         // 对success显式检查才能触发revert
-        (bool success,)=payable(msg.sender).call{value: address(this).balance}("");
+
+        uint256 balance = address(this).balance;
+        (bool success,)=payable(msg.sender).call{value: balance}("");
         require(success,"tx failed");
         getFundSuccess = true;
+
+        // 触发事件，记录日志
+        emit getFundEvent(msg.sender, balance);
     }
 
     // 退款

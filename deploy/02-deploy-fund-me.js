@@ -1,3 +1,5 @@
+const { developmentChains, networkConfig } = require("../helper-hardhat-config");
+
 // 参数是 Hardhat 在运行部署脚本时自动注入的工具对象，让你方便地访问账户、部署合约等功能
 // 这种方式只在 deploy/ 目录下的部署脚本中才会被 Hardhat-deploy 自动注入上下文参数，放到 scripts/ 目录下是不会自动生效的
 // hardhat-deploy 会按照文件名的字母顺序（ASCII顺序）执行 deploy/ 目录下的脚本，所以文件名一般会加数字来控制部署顺序，不加就会按照字母排序
@@ -9,6 +11,19 @@ module.exports = async ({getNamedAccounts,deployments,network})=> {
         throw new Error(
         "必须指定 --tags 参数，否则不允许执行部署！"
         );
+    }
+
+    let dataFeedAddress;
+
+    let confirmations;
+    // 如果是本地网络，部署模拟合约
+    if (developmentChains.includes(currentNetwork)){
+        dataFeedAddress = (await deployments.get("MockV3Aggregator")).address;
+        confirmations = 0
+    } else {
+        // 如果是测试网络，使用真实的链上数据源地址
+        dataFeedAddress = networkConfig[network.config.chainId].ethUsdDataFeed;
+        confirmations = 5;
     }
 
     // 获取在 hardhat.config.js 中定义的 namedAccounts 对应的地址
@@ -24,9 +39,11 @@ module.exports = async ({getNamedAccounts,deployments,network})=> {
         // 部署合约的账户
         from: firstAccount,
         // 传入构造函数参数
-        args: [180], // 传入的参数是一个数组
+        args: [180, dataFeedAddress], // 传入的参数是一个数组
         // 自动打印部署日志到终端
         log: true,
+        // 等待 n 个区块确认，确保合约部署成功，本地环境最好别加，会导致一直等待，因为没有新的交易就不会有新的区块
+        waitConfirmations: confirmations, 
     });
 }
 

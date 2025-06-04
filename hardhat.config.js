@@ -18,6 +18,13 @@ const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "";
 module.exports = {
   // solidity的编译版本
   solidity: "0.8.28",
+  // 单个测试用例默认40S超时，增加超时时间到200s
+  mocha: {
+    timeout: 300000
+  },
+  gasReporter: {
+    enabled: true
+  },
   // 发布的链配置
   networks: {
     sepolia: {
